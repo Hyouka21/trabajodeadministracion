@@ -71,4 +71,46 @@ public class JefeData {
         }
         return jefes;
     }
+    
+    public Jefe buscarJefe(long dni){
+        Jefe jefe = new Jefe();
+        try {
+            String sql = "SELECT * FROM jefe WHERE dni=?";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, dni);
+            ResultSet rs = ps.executeQuery();
+            
+            if(rs.next()){
+                jefe.setDni(rs.getLong(1));
+                jefe.setNombre(rs.getString(2));
+                jefe.setEmail(rs.getString(3));
+                jefe.setActivo(rs.getBoolean(4));
+                JOptionPane.showMessageDialog(null, "Se encontro el jefe correctamente");
+            }else{
+                JOptionPane.showMessageDialog(null, "No se encontro el jefe");
+            }
+            rs.close();
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al buscar jefe");
+        }
+        return jefe;
+    }
+    
+    public void bajaJefe(long dni){
+        try {
+            String sql = "UPDATE jefe SET activo = false WHERE dni = ?";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, dni);
+            
+            if(ps.executeUpdate() == 1){
+                JOptionPane.showMessageDialog(null, "se dio de baja correctamente");
+            }else{
+                JOptionPane.showMessageDialog(null, "no se dio la baja");
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "error al dar la baja");
+        }
+    }
 }

@@ -5,8 +5,8 @@
  */
 package proyectojorge.modelo;
 
-import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  *
@@ -14,15 +14,40 @@ import java.time.LocalDate;
  */
 public class Seguimiento {
     
-    private long idSeguimiento;
+    private int idSeguimiento;
     private LocalDate fecha;
-    private Time horaInicio;
-    private Time horaFinal;
+    private LocalTime horaInicio;
+    private LocalTime horaFinal;
     private Empleado empleado;
     private ParteDiario parteDiario;
+    private int horasNormales;
+    private int horas_50;
+    private int horas_100;
 
-    public Seguimiento(long idSeguimiento, LocalDate fecha, Time horaInicio, Time horaFinal, Empleado empleado, ParteDiario parteDiario) {
+    public Seguimiento(int idSeguimiento, LocalDate fecha, LocalTime horaInicio, LocalTime horaFinal, Empleado empleado, ParteDiario parteDiario, int horasNormales, int horas_50, int horas_100) {
         this.idSeguimiento = idSeguimiento;
+        this.fecha = fecha;
+        this.horaInicio = horaInicio;
+        this.horaFinal = horaFinal;
+        this.empleado = empleado;
+        this.parteDiario = parteDiario;
+        this.horasNormales = horasNormales;
+        this.horas_50 = horas_50;
+        this.horas_100 = horas_100;
+    }
+
+    public Seguimiento(LocalDate fecha, LocalTime horaInicio, LocalTime horaFinal, Empleado empleado, ParteDiario parteDiario, int horasNormales, int horas_50, int horas_100) {
+        this.fecha = fecha;
+        this.horaInicio = horaInicio;
+        this.horaFinal = horaFinal;
+        this.empleado = empleado;
+        this.parteDiario = parteDiario;
+        this.horasNormales = horasNormales;
+        this.horas_50 = horas_50;
+        this.horas_100 = horas_100;
+    }
+
+    public Seguimiento(LocalDate fecha, LocalTime horaInicio, LocalTime horaFinal, Empleado empleado, ParteDiario parteDiario) {
         this.fecha = fecha;
         this.horaInicio = horaInicio;
         this.horaFinal = horaFinal;
@@ -37,7 +62,7 @@ public class Seguimiento {
         return idSeguimiento;
     }
 
-    public void setIdSeguimiento(long idSeguimiento) {
+    public void setIdSeguimiento(int idSeguimiento) {
         this.idSeguimiento = idSeguimiento;
     }
 
@@ -49,19 +74,19 @@ public class Seguimiento {
         this.fecha = fecha;
     }
 
-    public Time getHoraInicio() {
+    public LocalTime getHoraInicio() {
         return horaInicio;
     }
 
-    public void setHoraInicio(Time horaInicio) {
+    public void setHoraInicio(LocalTime horaInicio) {
         this.horaInicio = horaInicio;
     }
 
-    public Time getHoraFinal() {
+    public LocalTime getHoraFinal() {
         return horaFinal;
     }
 
-    public void setHoraFinal(Time horaFinal) {
+    public void setHoraFinal(LocalTime horaFinal) {
         this.horaFinal = horaFinal;
     }
 
@@ -79,6 +104,30 @@ public class Seguimiento {
 
     public void setParteDiario(ParteDiario parteDiario) {
         this.parteDiario = parteDiario;
+    }
+
+    public int getHorasNormales() {
+        return horasNormales;
+    }
+
+    public void setHorasNormales(int horasNormales) {
+        this.horasNormales = horasNormales;
+    }
+
+    public int getHoras_50() {
+        return horas_50;
+    }
+
+    public void setHoras_50(int horas_50) {
+        this.horas_50 = horas_50;
+    }
+
+    public int getHoras_100() {
+        return horas_100;
+    }
+
+    public void setHoras_100(int horas_100) {
+        this.horas_100 = horas_100;
     }
 
     @Override
