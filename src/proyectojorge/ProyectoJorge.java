@@ -31,11 +31,18 @@ public class ProyectoJorge {
         ParteDiario pd1 = new ParteDiario(12345678, 87654321, "trabajo de cañeria","no", LocalDate.of(2020, Month.MARCH, 21),j1);
         Seguimiento s1 = new Seguimiento(LocalDate.of(2021, Month.MARCH, 22), LocalTime.of(8, 0), LocalTime.of(17, 0), e1, pd1);
         
+        LocalDate fechaPrueba = LocalDate.of(2021, Month.MARCH, 22);
+        
+        
         //clases data.
         EmpleadoData ed = new EmpleadoData(con);
         JefeData jd = new JefeData(con);
         ParteDiarioData pdd = new ParteDiarioData(con);
         SeguimientoData sd = new SeguimientoData(con);
+        
+        
+        //saca las horas que hizo un empleado en una fecha particular;
+        System.out.println(sd.horasEmpleado(39137254, fechaPrueba));
         
 //        ed.guardarEmpleado(e1); // se agrego un empleado.
 //        ed.guardarEmpleado(e2); // se agrego un empleado.
