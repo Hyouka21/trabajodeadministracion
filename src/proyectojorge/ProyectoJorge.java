@@ -9,6 +9,8 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
 import proyectojorge.control.*;
 import proyectojorge.modelo.*;
 
@@ -37,12 +39,19 @@ public class ProyectoJorge {
         //clases data.
         EmpleadoData ed = new EmpleadoData(con);
         JefeData jd = new JefeData(con);
-        ParteDiarioData pdd = new ParteDiarioData(con);
-        SeguimientoData sd = new SeguimientoData(con);
+        ParteDiarioData pdd = new ParteDiarioData(con, jd);
+        SeguimientoData sd = new SeguimientoData(con, pdd, ed);
         
         
         //saca las horas que hizo un empleado en una fecha particular;
-        System.out.println(sd.horasEmpleado(39137254, fechaPrueba));
+//        System.out.println(sd.horasEmpleado(39137254, fechaPrueba));
+
+        //traer un seguimiento.
+        Seguimiento[] seguimientos = new Seguimiento[sd.traerSeguimientosDni(39137254).size()];
+        
+        seguimientos = sd.traerSeguimientosDni(39137254).toArray(seguimientos);
+        
+        System.out.println(seguimientos[0].getEmpleado().getNombre());
         
 //        ed.guardarEmpleado(e1); // se agrego un empleado.
 //        ed.guardarEmpleado(e2); // se agrego un empleado.

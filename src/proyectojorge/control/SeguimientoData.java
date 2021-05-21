@@ -14,6 +14,8 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -25,9 +27,13 @@ import proyectojorge.modelo.*;
  */
 public class SeguimientoData {
     Connection con;
+    ParteDiarioData pdd;
+    EmpleadoData ed;
 
-    public SeguimientoData(Conexion conexion) {
+    public SeguimientoData(Conexion conexion, ParteDiarioData pdd, EmpleadoData ed) {
         con = conexion.getConnection();
+        this.pdd = pdd;
+        this.ed = ed;
     }
     
     public void guardarSeguimiento(Seguimiento seg){
@@ -74,4 +80,84 @@ public class SeguimientoData {
         return horas;
     }
     
+    public List<Seguimiento> traerSeguimientosOt(long ot){
+        List<Seguimiento> seguimientos = new ArrayList<Seguimiento>();
+        Seguimiento seguimiento;
+        try {
+            String sql = "SELECT * FROM seguimiento WHERE orden_trabajo = ?";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, ot);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                seguimiento = new Seguimiento();
+                seguimiento.setIdSeguimiento(rs.getInt(1));
+                seguimiento.setFecha(LocalDate.parse(String.valueOf(rs.getDate(2))));
+                seguimiento.setHoraInicio(LocalTime.parse(String.valueOf(rs.getTime(3))));
+                seguimiento.setHoraFinal(LocalTime.parse(String.valueOf(rs.getTime(4))));
+                seguimiento.setParteDiario(pdd.buscarParteDiario(rs.getLong(5)));
+                seguimiento.setEmpleado(ed.buscarEmpleado(rs.getLong(7)));
+                seguimiento.setHoras_100(rs.getInt(8));
+                seguimiento.setHoras_50(rs.getInt(9));
+                seguimiento.setHorasNormales(rs.getInt(10));
+                seguimientos.add(seguimiento);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
+        }
+        return seguimientos;
+    }
+    
+    public List<Seguimiento> traerSeguimientosDni(long dni){
+        List<Seguimiento> seguimientos = new ArrayList<Seguimiento>();
+        Seguimiento seguimiento;
+        try {
+            String sql = "SELECT * FROM seguimiento WHERE dni_empleado = ?";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, dni);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                seguimiento = new Seguimiento();
+                seguimiento.setIdSeguimiento(rs.getInt(1));
+                seguimiento.setFecha(LocalDate.parse(String.valueOf(rs.getDate(2))));
+                seguimiento.setHoraInicio(LocalTime.parse(String.valueOf(rs.getTime(3))));
+                seguimiento.setHoraFinal(LocalTime.parse(String.valueOf(rs.getTime(4))));
+                seguimiento.setParteDiario(pdd.buscarParteDiario(rs.getLong(5)));
+                seguimiento.setEmpleado(ed.buscarEmpleado(rs.getLong(7)));
+                seguimiento.setHoras_100(rs.getInt(8));
+                seguimiento.setHoras_50(rs.getInt(9));
+                seguimiento.setHorasNormales(rs.getInt(10));
+                seguimientos.add(seguimiento);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
+        }
+        return seguimientos;
+    }
+    
+    public List<Seguimiento> traerSeguimientosNumTarea(long nt){
+        List<Seguimiento> seguimientos = new ArrayList<Seguimiento>();
+        Seguimiento seguimiento;
+        try {
+            String sql = "SELECT * FROM seguimiento WHERE numero_tarea = ?";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, nt);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                seguimiento = new Seguimiento();
+                seguimiento.setIdSeguimiento(rs.getInt(1));
+                seguimiento.setFecha(LocalDate.parse(String.valueOf(rs.getDate(2))));
+                seguimiento.setHoraInicio(LocalTime.parse(String.valueOf(rs.getTime(3))));
+                seguimiento.setHoraFinal(LocalTime.parse(String.valueOf(rs.getTime(4))));
+                seguimiento.setParteDiario(pdd.buscarParteDiario(rs.getLong(5)));
+                seguimiento.setEmpleado(ed.buscarEmpleado(rs.getLong(7)));
+                seguimiento.setHoras_100(rs.getInt(8));
+                seguimiento.setHoras_50(rs.getInt(9));
+                seguimiento.setHorasNormales(rs.getInt(10));
+                seguimientos.add(seguimiento);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
+        }
+        return seguimientos;
+    }
 }
