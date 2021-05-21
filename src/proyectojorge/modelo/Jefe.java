@@ -61,6 +61,6 @@ public class Jefe {
     
     @Override
     public String toString() {
-        return "Jefe{" + "nombre=" + nombre + '}';
+        return String.valueOf(this.getNombre()+" : "+this.getEmail());
     }
 }
