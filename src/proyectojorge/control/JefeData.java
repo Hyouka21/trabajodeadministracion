@@ -85,7 +85,7 @@ public class JefeData {
                 jefe.setNombre(rs.getString(2));
                 jefe.setEmail(rs.getString(3));
                 jefe.setActivo(rs.getBoolean(4));
-                JOptionPane.showMessageDialog(null, "Se encontro el jefe correctamente");
+               // JOptionPane.showMessageDialog(null, "Se encontro el jefe correctamente");
             }else{
                 JOptionPane.showMessageDialog(null, "No se encontro el jefe");
             }

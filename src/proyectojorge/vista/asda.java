@@ -5,17 +5,30 @@
  */
 package proyectojorge.vista;
 
+import java.time.LocalDate;
+import java.util.List;
+import javax.swing.tree.DefaultMutableTreeNode;
+import proyectojorge.control.Conexion;
+import proyectojorge.control.ParteDiarioData;
+import proyectojorge.modelo.ParteDiario;
+
 /**
  *
  * @author kevin
  */
 public class asda extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form asda
      */
+    Conexion con;
+    ParteDiarioData pd ;
+    DefaultMutableTreeNode anios = new DefaultMutableTreeNode("años");
     public asda() {
+        con = new Conexion();
+        pd = new ParteDiarioData(con);
         initComponents();
+        cargarTree();
     }
 
     /**
@@ -27,25 +40,104 @@ public class asda extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTree1 = new javax.swing.JTree(anios);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jScrollPane1.setViewportView(jTree1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(584, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     /**
-     * @param args the command line arguments
      */
+     
+    public void cargarTree(){
+        DefaultMutableTreeNode anio = new DefaultMutableTreeNode("2021");
+        anios.add(anio);
+        anioMes(anio,31,"enero");
+        anioMes(anio,28,"febrero");
+        anioMes(anio,31,"marzo");
+        anioMes(anio,30,"abril");
+        anioMes(anio,31,"mayo");
+        anioMes(anio,30,"junio");
+        anioMes(anio,31,"julio");
+        anioMes(anio,31,"agosto");
+        anioMes(anio,30,"septiembre");
+        anioMes(anio,31,"octubre");
+        anioMes(anio,30,"noviembre");
+        anioMes(anio,31,"diciembre");
+        anio = new DefaultMutableTreeNode("2022");
+        anios.add(anio);
+        anioMes(anio,31,"enero");
+        anioMes(anio,28,"febrero");
+        anioMes(anio,31,"marzo");
+        anioMes(anio,30,"abril");
+        anioMes(anio,31,"mayo");
+        anioMes(anio,30,"junio");
+        anioMes(anio,31,"julio");
+        anioMes(anio,31,"agosto");
+        anioMes(anio,30,"septiembre");
+        anioMes(anio,31,"octubre");
+        anioMes(anio,30,"noviembre");
+        anioMes(anio,31,"diciembre");
+        
+        
+    }
+    public void anioMes(DefaultMutableTreeNode anio, int dia,String mes){
+    DefaultMutableTreeNode meses = new DefaultMutableTreeNode(mes);
+        anio.add(meses);
+        mesDia(meses,dia);
+    
+    }
+    public void mesDia(DefaultMutableTreeNode a ,int dias){
+        int numero=1;
+        for(int x = 0 ; x<dias;x++){
+        DefaultMutableTreeNode dia = new DefaultMutableTreeNode(String.valueOf(numero));
+        a.add(dia);
+        int mes=0;
+            switch(a.toString()){
+                case "enero": mes=1;break;
+                case "febrero": mes=2;break;
+                case "marzo": mes=3;break;
+                case "abril": mes=4;break;
+                case "mayo": mes=5;break;
+                case "junio": mes=6;break;
+                case "julio": mes=7;break;
+                case "agosto": mes=8;break;
+                case "septiembre": mes=9;break;
+                case "octubre": mes=10;break;
+                case "noviembre": mes=11;break;
+                case "diciembre": mes=12;break;
+                
+                
+            }
+        List<ParteDiario> lista= pd.traerParteDiarioFecha(LocalDate.of(2021, mes, numero));
+        for (int z = 0 ; z<lista.size();z++){
+        DefaultMutableTreeNode parteD = new DefaultMutableTreeNode(lista.get(z).getOrdenTrabajo()+"/" + lista.get(z).getNumeroTarea());
+        dia.add(parteD);
+        }
+        numero++;
+        }
+    }
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -79,5 +171,7 @@ public class asda extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
 }
