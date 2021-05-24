@@ -30,10 +30,10 @@ public class SeguimientoData {
     ParteDiarioData pdd;
     EmpleadoData ed;
 
-    public SeguimientoData(Conexion conexion, ParteDiarioData pdd, EmpleadoData ed) {
+    public SeguimientoData(Conexion conexion) {
         con = conexion.getConnection();
-        this.pdd = pdd;
-        this.ed = ed;
+        pdd = new ParteDiarioData(conexion);
+        ed = new EmpleadoData(conexion);
     }
     
     public void guardarSeguimiento(Seguimiento seg){
@@ -141,6 +141,32 @@ public class SeguimientoData {
             String sql = "SELECT * FROM seguimiento WHERE numero_tarea = ?";
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, nt);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                seguimiento = new Seguimiento();
+                seguimiento.setIdSeguimiento(rs.getInt(1));
+                seguimiento.setFecha(LocalDate.parse(String.valueOf(rs.getDate(2))));
+                seguimiento.setHoraInicio(LocalTime.parse(String.valueOf(rs.getTime(3))));
+                seguimiento.setHoraFinal(LocalTime.parse(String.valueOf(rs.getTime(4))));
+                seguimiento.setParteDiario(pdd.buscarParteDiario(rs.getLong(5)));
+                seguimiento.setEmpleado(ed.buscarEmpleado(rs.getLong(7)));
+                seguimiento.setHoras_100(rs.getInt(8));
+                seguimiento.setHoras_50(rs.getInt(9));
+                seguimiento.setHorasNormales(rs.getInt(10));
+                seguimientos.add(seguimiento);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
+        }
+        return seguimientos;
+    }
+    
+    public List<Seguimiento> traerSeguimientos(){
+        List<Seguimiento> seguimientos = new ArrayList<Seguimiento>();
+        Seguimiento seguimiento;
+        try {
+            String sql = "SELECT * FROM seguimiento";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 seguimiento = new Seguimiento();

@@ -311,8 +311,8 @@ public class vista extends javax.swing.JFrame {
         //--------------------propiedades para enviar un correo a GMAIL-----------------------//
         
         //Session sesion = Session.getDefaultInstance(propiedad,null);   //seteo las propiedades
-        String user = "joni2210122@gmail.com";   //mi correo
-        String password = "winterfell22";        //mi contra
+        String user = "kevinenriquep26@gmail.com";   //mi correo
+        String password = "Queteimporta1";        //mi contra
         
         Session sesion = Session.getInstance(propiedad,
                 
