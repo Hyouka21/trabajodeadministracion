@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.activation.DataHandler;
@@ -22,6 +23,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -48,7 +51,7 @@ public class vista extends javax.swing.JFrame {
     JefeData jefedata;
     String muestra="";
     Jefe jefe = null;
-
+    Icon gif = new ImageIcon(getClass().getResource("/Image/spinner.gif"));
     
     public vista() {
         initComponents();
@@ -56,6 +59,8 @@ public class vista extends javax.swing.JFrame {
         Conexion c=new Conexion();
         jefedata = new JefeData(c);
         this.cargarCBjefe();
+        
+        
     }
 
     public void setPathName(ArrayList<String> direccionAdjunta){
@@ -75,7 +80,8 @@ public class vista extends javax.swing.JFrame {
 
     }
     public void limpiarCampos(){
-        jLabelDirAdjunto.setText("");
+        jTextAreaAdjunto.setText("");
+        //jLabelDirAdjunto.setText("");
         jTextAreaMensaje.setText("");
         jTextFieldAsunto.setText("");
         this.getfileName().clear();
@@ -85,7 +91,6 @@ public class vista extends javax.swing.JFrame {
         muestra ="";
         jLabelEmails.setText(muestra);
         
-         
     }
    
     public void cargarCBjefe(){
@@ -108,11 +113,27 @@ public class vista extends javax.swing.JFrame {
     public void mostrar(){
     muestra="";
         for (int x = 0; x < destinatarios.size(); x++) {
-            muestra += " ("+ destinatarios.get(x)+") ; ";
+            muestra += "<html> ("+ destinatarios.get(x)+") ; <html>";
             System.out.println(muestra);
             jLabelEmails.setText(muestra);      
         }
     }
+    public void borrarUltimoAdjunto(){
+        int ultimoPath=pathName.size()-1;
+        int ultimoFile=fileName.size()-1;
+        if(ultimoPath>-1){
+            System.out.println("Ultimo Path: "+ultimoPath);
+            pathName.remove(ultimoPath);
+            System.out.println(pathName);
+        }
+        if(ultimoFile>-1){
+            System.out.println("Ultimo Path: "+ultimoFile);
+            fileName.remove(ultimoFile);
+            System.out.println(fileName);
+        }
+    }
+    
+
    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -126,14 +147,14 @@ public class vista extends javax.swing.JFrame {
         jTextAreaMensaje = new javax.swing.JTextArea();
         jButtonEnviar = new javax.swing.JButton();
         jButtonAdjuntar = new javax.swing.JButton();
-        jLabelDirAdjunto = new javax.swing.JLabel();
         jButtonLimpiar = new javax.swing.JButton();
         jComboBoxJefes = new javax.swing.JComboBox<>();
         jLabelEmails = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jButtonBorrar = new javax.swing.JButton();
-        scrollbar2 = new java.awt.Scrollbar();
-        scrollbar3 = new java.awt.Scrollbar();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextAreaAdjunto = new javax.swing.JTextArea();
+        jButtonBorrarAd = new javax.swing.JButton();
 
         popupMenu1.setLabel("popupMenu1");
 
@@ -202,6 +223,20 @@ public class vista extends javax.swing.JFrame {
             }
         });
 
+        jTextAreaAdjunto.setEditable(false);
+        jTextAreaAdjunto.setColumns(20);
+        jTextAreaAdjunto.setLineWrap(true);
+        jTextAreaAdjunto.setRows(5);
+        jTextAreaAdjunto.setWrapStyleWord(true);
+        jScrollPane2.setViewportView(jTextAreaAdjunto);
+
+        jButtonBorrarAd.setText("Borrar Adjunto");
+        jButtonBorrarAd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBorrarAdActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -209,37 +244,40 @@ public class vista extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                                .addGap(8, 8, 8)
+                                .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBoxJefes, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabelEmails, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButtonLimpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButtonBorrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jTextFieldAsunto))
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jButtonAdjuntar)
-                                .addGap(2, 2, 2)
-                                .addComponent(jLabelDirAdjunto, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGap(8, 8, 8)
-                                        .addComponent(jLabel2)
+                                        .addComponent(jLabel1)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jTextFieldAsunto))
+                                        .addComponent(jComboBoxJefes, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jLabelEmails, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButtonLimpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButtonBorrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jButtonEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addContainerGap()
-                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(58, 58, 58)
-                                .addComponent(jButtonEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 26, Short.MAX_VALUE)))
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jButtonAdjuntar)
+                                            .addComponent(jButtonBorrarAd))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(0, 30, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -253,42 +291,45 @@ public class vista extends javax.swing.JFrame {
                             .addComponent(jComboBoxJefes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButtonBorrar))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabelEmails, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE))
+                        .addComponent(jLabelEmails, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jButtonLimpiar))
                 .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextFieldAsunto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButtonEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jButtonAdjuntar, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextFieldAsunto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                        .addComponent(jLabelDirAdjunto, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                        .addComponent(jButtonEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(24, 24, 24)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButtonAdjuntar, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36)
+                        .addComponent(jButtonBorrarAd))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(41, Short.MAX_VALUE))
         );
-
-        jLabelDirAdjunto.getAccessibleContext().setAccessibleDescription("");
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEnviarActionPerformed
+
+
         
-        
+
+            
+        System.out.println("pasoooo");
         //***************************Listas de Direcciones Adjuntas y Nombres de archivos****************************//
                 
         ArrayList<String> dirAdjuntoo = new ArrayList<String>(this.getPathName());    
         ArrayList<String> listnombreArchivo = new ArrayList<String>(this.getfileName());
         ArrayList<String> listaSelec = new ArrayList<String>(destinatarios);  
-        ArrayList<Jefe> correos = new ArrayList<Jefe>(jefedata.traerJefes());
+        //ArrayList<Jefe> correos = new ArrayList<Jefe>(jefedata.traerJefes());
         String nombreArchivo = "";
         
         //*****************************************************************************************************//
@@ -300,17 +341,9 @@ public class vista extends javax.swing.JFrame {
         propiedad.put("mail.smtp.starttls.enable", "true");
         propiedad.put("mail.smtp.port", "587");
         propiedad.put("mail.smtp.auth", "true");
-//        propiedad.put("mail.smtp.host", "smtp.gmail.com");
-//        propiedad.put("mail.smtp.socketFactory.port", "465");
-//        propiedad.put("mail.smtp.socketFactory.class",
-//                "javax.net.ssl.SSLSocketFactory");
-//        propiedad.put("mail.smtp.auth", "true");
-//        propiedad.put("mail.smtp.port", "465");
-//        propiedad.put("mail.debug", "false");
         
         //--------------------propiedades para enviar un correo a GMAIL-----------------------//
         
-        //Session sesion = Session.getDefaultInstance(propiedad,null);   //seteo las propiedades
         String user = "joni2210122@gmail.com";   //mi correo
         String password = "winterfell22";        //mi contra
         
@@ -329,18 +362,16 @@ public class vista extends javax.swing.JFrame {
             String correo = listaSelec.get(x);
             System.out.println(correo);
         }
-        
-        
-        //String destinatario = JTextFieldRecibe.getText();   
+             
         String asunto = jTextFieldAsunto.getText();
         String mensaje = jTextAreaMensaje.getText();
+        
         //String valCorreo = "^([A-Za-z0-9_.-]+)@([\\da-z.-]+).([a-z.]{2,6})$";
         
         
         if(!destinatarios.isEmpty()){
             
         //------------------------Datos que traigo del JinternalFrame---------------------------//
-
 
             try {
                 BodyPart texto = new MimeBodyPart();                                            //bodypart la uso para poder adjuntar un archivo y el texto
@@ -372,8 +403,7 @@ public class vista extends javax.swing.JFrame {
                         BodyPart archivo =(BodyPart)it.next();                                       //<------------obtenemos el objeto
                         multiParte.addBodyPart(archivo);                                             //<-----------------finalmente lo añadimos al mensaje
                     }
-
-                //-------------------------Aca seteo el email y lo envio con Transport*********************************//
+            //-------------------------Aca seteo el email y lo envio con Transport*********************************//
 
                 MimeMessage mail = new MimeMessage(sesion);                                       //creo la sesion
 
@@ -384,7 +414,6 @@ public class vista extends javax.swing.JFrame {
                     mail.addRecipient(Message.RecipientType.TO, new InternetAddress(correo));   //aca va el email del destinatario
                 }
                     
-                
                 mail.setSubject(asunto);                                                          //set asunto
                 mail.setContent(multiParte);                                                      //set mensaje
 
@@ -394,30 +423,28 @@ public class vista extends javax.swing.JFrame {
                 transporte.close();
                 
 //------------------------------------------Limpiar vista-----------------------------------------------------------//
-
                 JOptionPane.showMessageDialog(null, "Correo Enviado");
                 this.limpiarCampos();
                 this.setfileName(listnombreArchivo);
                 this.setPathName(dirAdjuntoo);
                 destinatarios.clear();
                 this.jComboBoxJefes.setSelectedItem(jefe);
-                       
+                //enviando.setVisible(false);      
 //------------------------------------------Limpiar vista-----------------------------------------------------------//      
+                
                 
             } catch (AddressException ex) {
                 Logger.getLogger(vista.class.getName()).log(Level.SEVERE, null, ex);
                 JOptionPane.showMessageDialog(null, "No se pudo enviar");
-
             } catch (MessagingException ex) {
                 Logger.getLogger(vista.class.getName()).log(Level.SEVERE, null, ex);
-                
-                JOptionPane.showMessageDialog(null, "NO SE PUEDE ENVIAR ARCHIVOS .RAR");
+                JOptionPane.showMessageDialog(null, "No se pudo enviar el correo");
             } 
             
         }else{
             JOptionPane.showMessageDialog(this, "Seleccione un destinatario");
         } 
-        
+   
     }//GEN-LAST:event_jButtonEnviarActionPerformed
 
     private void jTextFieldAsuntoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldAsuntoActionPerformed
@@ -456,9 +483,11 @@ public class vista extends javax.swing.JFrame {
                 for (int x = 0; x < fileName.size(); x++) {
                     nombreArchivo += fileName.get(x)+ "; ";
                     System.out.println("Nombre: "+nombreArchivo);
+                    
 		}
                     
-                jLabelDirAdjunto.setText("Archivos seleccionados: "+nombreArchivo);
+                //jLabelDirAdjunto.setText("<html> "+nombreArchivo+" <html>");
+                jTextAreaAdjunto.setText("\n"+nombreArchivo+" \n");
                 this.setfileName(fileName);
                 this.setPathName(dirAdjuntoo);
                 
@@ -510,7 +539,7 @@ public class vista extends javax.swing.JFrame {
                 muestra ="";
                 jLabelEmails.setText(muestra);
             }else{
-               muestra += "("+ destinatarios.get(x)+") ; ";
+               muestra += "<html>("+ destinatarios.get(x)+") ; <html>";
                jLabelEmails.setText(muestra);  
             }
         }
@@ -520,6 +549,24 @@ public class vista extends javax.swing.JFrame {
         }
        
     }//GEN-LAST:event_jButtonBorrarActionPerformed
+
+    private void jButtonBorrarAdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBorrarAdActionPerformed
+        this.borrarUltimoAdjunto();
+        muestra="";
+        for (int x = 0; x < fileName.size(); x++) {
+            if(fileName.isEmpty()){
+                muestra ="";
+                jTextAreaAdjunto.setText(muestra);
+            }else{
+               muestra += "\n"+ fileName.get(x)+" ; ";
+               jTextAreaAdjunto.setText(muestra); 
+            }
+        }
+        if(fileName.isEmpty()){
+            muestra ="";
+            jTextAreaAdjunto.setText(muestra);
+        }
+    }//GEN-LAST:event_jButtonBorrarAdActionPerformed
 
 
     public static void main(String args[]) {
@@ -557,19 +604,19 @@ public class vista extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAdjuntar;
     private javax.swing.JButton jButtonBorrar;
+    private javax.swing.JButton jButtonBorrarAd;
     private javax.swing.JButton jButtonEnviar;
     private javax.swing.JButton jButtonLimpiar;
     private javax.swing.JComboBox<Jefe> jComboBoxJefes;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabelDirAdjunto;
     private javax.swing.JLabel jLabelEmails;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSpinner jSpinner1;
+    private javax.swing.JTextArea jTextAreaAdjunto;
     private javax.swing.JTextArea jTextAreaMensaje;
     private javax.swing.JTextField jTextFieldAsunto;
     private java.awt.PopupMenu popupMenu1;
-    private java.awt.Scrollbar scrollbar2;
-    private java.awt.Scrollbar scrollbar3;
     // End of variables declaration//GEN-END:variables
 }
