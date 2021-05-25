@@ -61,6 +61,33 @@ public class SeguimientoData {
         }
     }
     
+    public void guardarSeguimientoCompleto(Seguimiento seg){
+        try {
+            String sql = "INSERT INTO seguimiento(fecha, hora_inicio, hora_final, orden_trabajo, numero_tarea, dni_empleado, horas_100, horas_50, horas_normales) VALUES (?,?,?,?,?,?,?,?,?)";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setDate(1, Date.valueOf(seg.getFecha()));
+            ps.setTime(2, Time.valueOf(seg.getHoraInicio()));
+            ps.setTime(3, Time.valueOf(seg.getHoraFinal()));
+            ps.setLong(4, seg.getParteDiario().getOrdenTrabajo());
+            ps.setLong(5, seg.getParteDiario().getNumeroTarea());
+            ps.setLong(6, seg.getEmpleado().getDni());
+            ps.setInt(7, seg.getHoras_100());
+            ps.setInt(8, seg.getHoras_50());
+            ps.setInt(9, seg.getHorasNormales());
+            ps.executeUpdate();
+            
+            ResultSet rs = ps.getGeneratedKeys();
+            if(rs.next()){
+                seg.setIdSeguimiento(rs.getInt(1));
+                JOptionPane.showMessageDialog(null, "el seguimiento se agrego correctamente");
+            }
+            rs.close();
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "error al agregar el seguimiento");
+        }
+    }
+    
     public LocalTime horasEmpleado(long dni, LocalDate fecha){
         LocalTime horas = null;
         try {
@@ -74,6 +101,8 @@ public class SeguimientoData {
             if(rs.next()){
                 horas = LocalTime.parse(String.valueOf(rs.getTime(2)));
             }
+            rs.close();
+            ps.close();
         } catch (SQLException ex) {
             Logger.getLogger(SeguimientoData.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -101,6 +130,8 @@ public class SeguimientoData {
                 seguimiento.setHorasNormales(rs.getInt(10));
                 seguimientos.add(seguimiento);
             }
+            rs.close();
+            ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
         }
@@ -128,6 +159,8 @@ public class SeguimientoData {
                 seguimiento.setHorasNormales(rs.getInt(10));
                 seguimientos.add(seguimiento);
             }
+            rs.close();
+            ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
         }
@@ -155,6 +188,38 @@ public class SeguimientoData {
                 seguimiento.setHorasNormales(rs.getInt(10));
                 seguimientos.add(seguimiento);
             }
+            rs.close();
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
+        }
+        return seguimientos;
+    }
+    
+    public List<Seguimiento> traerSeguimientosOrdTrabajoNumTar(long ot, long nt){
+        List<Seguimiento> seguimientos = new ArrayList<Seguimiento>();
+        Seguimiento seguimiento;
+        try {
+            String sql = "SELECT * FROM seguimiento where orden_trabajo = ? and numero_tarea = ?";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, ot);
+            ps.setLong(2, nt);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                seguimiento = new Seguimiento();
+                seguimiento.setIdSeguimiento(rs.getInt(1));
+                seguimiento.setFecha(LocalDate.parse(String.valueOf(rs.getDate(2))));
+                seguimiento.setHoraInicio(LocalTime.parse(String.valueOf(rs.getTime(3))));
+                seguimiento.setHoraFinal(LocalTime.parse(String.valueOf(rs.getTime(4))));
+                seguimiento.setParteDiario(pdd.buscarParteDiario(rs.getLong(5)));
+                seguimiento.setEmpleado(ed.buscarEmpleado(rs.getLong(7)));
+                seguimiento.setHoras_100(rs.getInt(8));
+                seguimiento.setHoras_50(rs.getInt(9));
+                seguimiento.setHorasNormales(rs.getInt(10));
+                seguimientos.add(seguimiento);
+            }
+            rs.close();
+            ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
         }
@@ -181,6 +246,8 @@ public class SeguimientoData {
                 seguimiento.setHorasNormales(rs.getInt(10));
                 seguimientos.add(seguimiento);
             }
+            rs.close();
+            ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
         }
