@@ -7,6 +7,7 @@ package proyectojorge.vista;
 
 import java.time.LocalDate;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import proyectojorge.control.Conexion;
 import proyectojorge.control.ParteDiarioData;
@@ -23,12 +24,13 @@ public class asda extends javax.swing.JFrame {
      */
     Conexion con;
     ParteDiarioData pd ;
-    DefaultMutableTreeNode anios = new DefaultMutableTreeNode("años");
+    DefaultMutableTreeNode anios = new DefaultMutableTreeNode("Partes Diarios");
     public asda() {
         con = new Conexion();
         pd = new ParteDiarioData(con);
         initComponents();
         cargarTree();
+        
     }
 
     /**
@@ -45,6 +47,11 @@ public class asda extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jTree1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTree1MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTree1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -52,20 +59,33 @@ public class asda extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(23, 23, 23)
+                .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(584, Short.MAX_VALUE))
+                .addContainerGap(597, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(20, 20, 20)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addContainerGap(35, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTree1MouseClicked
+        // TODO add your handling code here:
+        if (evt.getClickCount() == 2 && !evt.isConsumed()) {
+            if(jTree1.getSelectionModel().getSelectionPath().getPath().length <5){}else{
+            String modelo = jTree1.getSelectionModel().getSelectionPath().getPath()[4].toString();
+            JOptionPane.showMessageDialog(this,modelo);
+            
+            }
+           evt.consume();
+                   
+        }
+    }//GEN-LAST:event_jTree1MouseClicked
 
     /**
      */
