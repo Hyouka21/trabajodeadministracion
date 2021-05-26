@@ -9,6 +9,8 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
 import proyectojorge.control.*;
 import proyectojorge.modelo.*;
 
@@ -28,10 +30,11 @@ public class ProyectoJorge {
         Empleado e2 = new Empleado(66666666,"monolo","ayudante",true);
         Jefe j1 = new Jefe(12312312,"Hernan","hernanylachampons@gamil.com",true);
         Jefe j2 = new Jefe(32132132,"Roman","Roman@gamil.com",true);
+        Jefe j3 = new Jefe(44444444,"joni","joni2210122@gmail.com",true);
         ParteDiario pd1 = new ParteDiario(12345678, 87654321, "trabajo de cañeria","no", LocalDate.of(2020, Month.MARCH, 21),j1);
         Seguimiento s1 = new Seguimiento(LocalDate.of(2021, Month.MARCH, 22), LocalTime.of(8, 0), LocalTime.of(17, 0), e1, pd1);
         
-        LocalDate fechaPrueba = LocalDate.of(2021, Month.MARCH, 22);
+        LocalDate fechaPrueba = LocalDate.of(2020, Month.MARCH, 21);
         
         
         //clases data.
@@ -41,12 +44,23 @@ public class ProyectoJorge {
         SeguimientoData sd = new SeguimientoData(con);
         
         
-        //saca las horas que hizo un empleado en una fecha particular;
-        System.out.println(sd.horasEmpleado(39137254, fechaPrueba));
+//        //saca las horas que hizo un empleado en una fecha particular;
+//        System.out.println(sd.horasEmpleado(39137254, fechaPrueba));
+
+//        //traer seguimientos por fecha.
+//        for(ParteDiario pd:pdd.traerParteDiarioFecha(fechaPrueba)){
+//            System.out.println(pd);
+//        }
+
+//        Seguimiento[] seguimientos = new Seguimiento[sd.traerSeguimientosDni(39137254).size()];
+//        
+//        seguimientos = sd.traerSeguimientosDni(39137254).toArray(seguimientos);
+//        
+//        System.out.println(seguimientos[0].getEmpleado().getNombre());
         
 //        ed.guardarEmpleado(e1); // se agrego un empleado.
 //        ed.guardarEmpleado(e2); // se agrego un empleado.
-//        jd.guardarJefe(j1); // se agrega un jefe.
+//        jd.guardarJefe(j3); // se agrega un jefe.
 //        jd.guardarJefe(j2); // se agrega un jefe.
 
 //        //Guardar un parte diario.
