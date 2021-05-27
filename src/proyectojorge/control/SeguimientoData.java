@@ -109,6 +109,28 @@ public class SeguimientoData {
         return horas;
     }
     
+    public LocalTime horasEmpleadoSeg(long dni, LocalDate fecha, LocalTime hora){
+        LocalTime horas = null;
+        try {
+            String sql = "select d.nombreCompleto,SEC_TO_TIME(sum(TIME_TO_SEC(d.horasTrabajadas))) as TotalHoras from ( select e.nombre as nombreCompleto,TIMEDIFF( s.hora_final ,s.hora_inicio) as horasTrabajadas from seguimiento s , empleado e where s.dni_empleado = ? and s.dni_empleado = e.dni and s.fecha = ? and s.hora_final <= ?) as d";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, dni);
+            ps.setDate(2, Date.valueOf(fecha));
+            ps.setTime(1, Time.valueOf(hora));
+            
+            ResultSet rs = ps.executeQuery();
+            
+            if(rs.next()){
+                horas = LocalTime.parse(String.valueOf(rs.getTime(2)));
+            }
+            rs.close();
+            ps.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(SeguimientoData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return horas;
+    }
+    
     public List<Seguimiento> traerSeguimientosOt(long ot){
         List<Seguimiento> seguimientos = new ArrayList<Seguimiento>();
         Seguimiento seguimiento;
@@ -252,5 +274,21 @@ public class SeguimientoData {
             JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
         }
         return seguimientos;
+    }
+    
+    public void eliminarSeguimiento(int id){
+        try {
+            String sql = "DELETE FROM seguimiento WHERE id_seguimiento = ?";
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, id);
+            if(ps.executeUpdate() == 1){
+                JOptionPane.showMessageDialog(null, "El seguimiento se eliminó correctamenta");
+            }else{
+                JOptionPane.showMessageDialog(null, "No se pudo eliminar el seguimiento");
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al eliminar el seguimiento");
+        }
     }
 }
