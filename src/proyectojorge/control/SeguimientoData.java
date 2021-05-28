@@ -99,10 +99,12 @@ public class SeguimientoData {
             ResultSet rs = ps.executeQuery();
             
             if(rs.next()){
-                horas = LocalTime.parse(String.valueOf(rs.getTime(2)));
+                if(rs.getTime(2)==null){
+                    horas = LocalTime.of(0, 0);
+                }else{
+                    horas = LocalTime.parse(String.valueOf(rs.getTime(2)));
+                }
             }
-            rs.close();
-            ps.close();
         } catch (SQLException ex) {
             Logger.getLogger(SeguimientoData.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -160,16 +162,15 @@ public class SeguimientoData {
         return seguimientos;
     }
     
-    public List<Seguimiento> traerSeguimientosDni(long dni){
-        List<Seguimiento> seguimientos = new ArrayList<Seguimiento>();
-        Seguimiento seguimiento;
+    
+    public Seguimiento traerSeguimientosId(int id){
+        Seguimiento seguimiento = new Seguimiento();
         try {
-            String sql = "SELECT * FROM seguimiento WHERE dni_empleado = ?";
+            String sql = "SELECT * FROM seguimiento WHERE id_seguimiento = ?";
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setLong(1, dni);
+            ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
-                seguimiento = new Seguimiento();
+            while(rs.next()){  
                 seguimiento.setIdSeguimiento(rs.getInt(1));
                 seguimiento.setFecha(LocalDate.parse(String.valueOf(rs.getDate(2))));
                 seguimiento.setHoraInicio(LocalTime.parse(String.valueOf(rs.getTime(3))));
@@ -179,14 +180,13 @@ public class SeguimientoData {
                 seguimiento.setHoras_100(rs.getInt(8));
                 seguimiento.setHoras_50(rs.getInt(9));
                 seguimiento.setHorasNormales(rs.getInt(10));
-                seguimientos.add(seguimiento);
             }
             rs.close();
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al traer los seguimientos");
         }
-        return seguimientos;
+        return seguimiento;
     }
     
     public List<Seguimiento> traerSeguimientosNumTarea(long nt){

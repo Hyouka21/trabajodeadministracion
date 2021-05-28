@@ -49,14 +49,22 @@ import proyectojorge.modelo.Seguimiento;
  * @author Hernan14
  */
 public class Panel extends javax.swing.JPanel {
-    private Conexion con;
+        private Conexion con;
     private SeguimientoData sd;
     private  Seguimiento seguimiento;
     private ParteDiarioData pd;
     private EmpleadoData ed;
     private String ot, nt;
     private DefaultTableModel modelo;
-
+    private Integer control;
+    private List<Integer> horas50;
+    private List<Integer> horasNormales;
+    private List<Integer> horas50BD;
+    private List<Integer> horasNormalesBD;
+    private List<Long> idSeguimientos;
+    private int horasTotalesAyudante50, horasTotalesAyudanteNormales,
+    horasTotalesOficial50, horasTotalesOficialNormales;
+    
     public Panel(String ot,String nt) {
         initComponents();
         modelo = new DefaultTableModel(){
@@ -69,8 +77,10 @@ public class Panel extends javax.swing.JPanel {
                 }
             }
         };
-        this.nt = nt; 
-        this.ot = ot;
+        this.nt = nt; this.ot = ot;
+        horas50 = new ArrayList<Integer>(); horasNormales = new ArrayList<Integer>();
+        idSeguimientos = new ArrayList<Long>(); horasNormalesBD = new ArrayList<Integer>();
+        horas50BD = new ArrayList<Integer>();
         con=new Conexion();
         sd = new SeguimientoData(con);
         ed = new EmpleadoData(con);
@@ -82,6 +92,7 @@ public class Panel extends javax.swing.JPanel {
         jBModificar.setEnabled(false);
         cargarEmpleados();
         cargarTabla();
+        //JOptionPane.showMessageDialog(this, horasNormales);
     }
 
     public void ArmarCabeceraTabla(){
@@ -111,36 +122,23 @@ public class Panel extends javax.swing.JPanel {
         long ots = Long.valueOf(ot.toString());
         long nts = Long.valueOf(nt.toString());
         List<Seguimiento> seguimientos = sd.traerSeguimientosOrdTrabajoNumTar(ots,nts);
+        control = seguimientos.size();
         if(seguimientos.size()<0){   
         }else{
             for(Seguimiento se:seguimientos){
-                modelo.addRow(new Object[]{se.getEmpleado().getNombre(),se.getEmpleado().getTipo(),se.getEmpleado().getDni(),se.getFecha(),se.getHoraInicio(),se.getHoraFinal()}); 
+                modelo.addRow(new Object[]{se.getEmpleado().getNombre(),se.getEmpleado().getTipo(),se.getEmpleado().getDni(),se.getFecha(),se.getHoraInicio(),se.getHoraFinal(),
+                se.getIdSeguimiento()}); 
+                idSeguimientos.add(se.getIdSeguimiento());
             }
         }  
     }
     
-    private List<Integer> horas100(){
-        List<Integer> horas = new ArrayList<Integer>();
-        Integer horainicio,horafinal,horastotales;
-        if(modelo.getRowCount()!=-1){
-            for(int i = 0;i<modelo.getRowCount();i++){
-                String[] parts = modelo.getValueAt(i, 4).toString().split(":");
-                String[] parts2 = modelo.getValueAt(i, 5).toString().split(":");
-                horainicio = Integer.valueOf(parts[0]);
-                horafinal = Integer.valueOf(parts2[0]);
-                horastotales = horafinal - horainicio;
-                if(horastotales > 8){
-                    horastotales = 8;
-                }
-                horas.add(horastotales);
-            }
-        }
-        return horas;
-    }
-    
-    private List<Integer> horas50(){
-        List<Integer> horas = new ArrayList<Integer>();
-        int horainicio,horafinal,horastotales;
+    private void horas50YNormales(){
+        LocalTime horasanteriores; 
+        int horainicio,horafinal,horastotales,horasnuevas;
+        long dni;
+        String fechat;
+        LocalDate fecha;
         if(modelo.getRowCount()!= -1){
             for(int i = 0;i<modelo.getRowCount();i++){
                 String[] parts = modelo.getValueAt(i, 4).toString().split(":");
@@ -148,116 +146,55 @@ public class Panel extends javax.swing.JPanel {
                 horainicio = Integer.valueOf(parts[0]);
                 horafinal = Integer.valueOf(parts2[0]);
                 horastotales = horafinal - horainicio;
-                if(horastotales > 8){
-                    horastotales-=8;
-                    horas.add(horastotales);
+                fechat = modelo.getValueAt(i, 3).toString();
+                fecha = LocalDate.parse(fechat);
+                dni = Long.valueOf(modelo.getValueAt(i, 2).toString());
+                horasanteriores = sd.horasEmpleado(dni, fecha);
+                String[] hs = horasanteriores.toString().split(":");
+                if(Integer.valueOf(hs[0]) >= 8){
+                    horas50.add(horastotales);
+                    horasNormales.add(0);
                 }else{
-                    horastotales = 0;
-                    horas.add(horastotales);
+                    int registrototal = horastotales + Integer.valueOf(hs[0]);
+                    horasnuevas = Integer.valueOf(hs[0]);
+                        if(registrototal > 8){
+                            registrototal -=8; 
+                            horasnuevas = Math.abs(horasnuevas-8);
+                            horas50.add(registrototal);
+                            horasNormales.add(horasnuevas);
+                        }else{
+                            horas50.add(0);
+                            horasNormales.add(horastotales);
+                        }
                 }
             }
         }
-        return horas;
     }
     
-    private int horasTotalesAyudante50(){
-        int horastotales = 0;
-        long dni;
-        String fechat,tipo;
-        LocalDate fecha;
-        LocalTime horas;
+    private void horasTotalesAyudante50(){
+        String tipo;
         if(modelo.getRowCount()!= -1){
             for(int i = 0;i<modelo.getRowCount();i++){
-                fechat = modelo.getValueAt(i, 3).toString();
-                fecha = LocalDate.parse(fechat);
-                dni = Long.valueOf(modelo.getValueAt(i, 2).toString());
                 tipo = modelo.getValueAt(i, 1).toString();
                 if(tipo == "ayudante"){
-                    horas = sd.horasEmpleado(dni, fecha);
-                    String[] hs = horas.toString().split(":");
-                    if(Integer.valueOf(hs[0]) > 8){
-                        horastotales += Math.abs(Integer.valueOf(hs[0])-8);
-                    }
+                    horasTotalesAyudante50+= horas50.get(i);
+                    horasTotalesAyudanteNormales+= horasNormales.get(i);
+                }
+                else if(tipo == "oficial"){
+                    horasTotalesOficial50+= horas50.get(i);
+                    horasTotalesOficialNormales+= horasNormales.get(i);
                 }
             }
         }
-        return horastotales;
     }
     
-    private int horasTotalesOficial50(){
-        int horastotales = 0;
-        long dni;
-        String fechat,tipo;
-        LocalDate fecha;
-        LocalTime horas;
-        if(modelo.getRowCount()!= -1){
-            for(int i = 0;i<modelo.getRowCount();i++){
-                fechat = modelo.getValueAt(i, 3).toString();
-                fecha = LocalDate.parse(fechat);
-                dni = Long.valueOf(modelo.getValueAt(i, 2).toString());
-                tipo = modelo.getValueAt(i, 1).toString();
-                if(tipo == "oficial"){
-                    horas = sd.horasEmpleado(dni, fecha);
-                    String[] hs = horas.toString().split(":");
-                    if(Integer.valueOf(hs[0]) > 8){
-                        horastotales += Math.abs(Integer.valueOf(hs[0])-8);
-                    }
-                }
-            }
+    private void horas50YNormalesBD(){
+        Seguimiento seg;
+        for(int i = 0;i<modelo.getRowCount();i++){
+            seg = sd.traerSeguimientosId(Integer.valueOf(idSeguimientos.get(i).toString()));
+            horas50BD.add(seg.getHoras_50());
+            horasNormalesBD.add(seg.getHorasNormales());
         }
-        return horastotales;
-    }
-    
-    private int horasTotalesAyudante100(){
-        int horastotales = 0;
-        long dni;
-        String fechat,tipo;
-        LocalDate fecha;
-        LocalTime horas;
-        if(modelo.getRowCount()!= -1){
-            for(int i = 0;i<modelo.getRowCount();i++){
-                fechat = modelo.getValueAt(i, 3).toString();
-                fecha = LocalDate.parse(fechat);
-                dni = Long.valueOf(modelo.getValueAt(i, 2).toString());
-                tipo = modelo.getValueAt(i, 1).toString();
-                if(tipo == "ayudante"){
-                    horas = sd.horasEmpleado(dni, fecha);
-                    String[] hs = horas.toString().split(":");
-                    if(Integer.valueOf(hs[0]) > 8){
-                        horastotales += 8;
-                    }else{
-                        horastotales += Integer.valueOf(hs[0]);
-                    }
-                }
-            }
-        }
-        return horastotales;
-    }
-    
-    private int horasTotalesOficial100(){
-        int horastotales = 0;
-        long dni;
-        String fechat,tipo;
-        LocalDate fecha;
-        LocalTime horas;
-        if(modelo.getRowCount()!= -1){
-            for(int i = 0;i<modelo.getRowCount();i++){
-                fechat = modelo.getValueAt(i, 3).toString();
-                fecha = LocalDate.parse(fechat);
-                dni = Long.valueOf(modelo.getValueAt(i, 2).toString());
-                tipo = modelo.getValueAt(i, 1).toString();
-                if(tipo == "oficial"){
-                    horas = sd.horasEmpleado(dni, fecha);
-                    String[] hs = horas.toString().split(":");
-                    if(Integer.valueOf(hs[0]) > 8){
-                        horastotales += 8;
-                    }else{
-                        horastotales += Integer.valueOf(hs[0]);
-                    }
-                }
-            }
-        }
-        return horastotales;
     }
     
     @SuppressWarnings("unchecked")
@@ -418,8 +355,9 @@ public class Panel extends javax.swing.JPanel {
 
     private void jBPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBPdfActionPerformed
         String dniu = jTOt.getText()+"-"+jTNt.getText();
-        List<Integer> horas100 = horas100();
-        List<Integer> horas50 = horas50();
+        horas50YNormalesBD();
+        horasTotalesAyudante50();
+        //JOptionPane.showMessageDialog(this,horas50 );
         try {
             String ruta = System.getProperty("user.home");
             File file = new File(ruta+"/desktop/ProyectoTrabajo/"+dniu+".pdf"); //RUTA A DEFINIR POR EL USUARIO
@@ -503,9 +441,9 @@ public class Panel extends javax.swing.JPanel {
                 tabla.addCell(new Cell(1,2).add(new Paragraph(modelo.getValueAt(i,3).toString())));
                 tabla.addCell(modelo.getValueAt(i,4).toString());
                 tabla.addCell(modelo.getValueAt(i,5).toString());
-                tabla.addCell(horas100.get(i).toString());
-                tabla.addCell(horas50.get(i).toString());
                 tabla.addCell("0");
+                tabla.addCell(horas50BD.get(i).toString());
+                tabla.addCell(horasNormalesBD.get(i).toString());
                 cantidad--;
                 }
             for(int x = 0;x<cantidad;x++){
@@ -519,13 +457,13 @@ public class Panel extends javax.swing.JPanel {
             }
             tabla.addCell(new Cell(4,5).add(herramientas.addCell(new Cell(1,1).add(new Paragraph("Herramientas de trabajo: ")).setMaxWidth(600f).setHeight(130))).setPaddings(4,4,4,4));
             tabla.addCell(new Cell(1,1).add(new Paragraph("Total horas/ayudante:")).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudante100()))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudante50()))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
+            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf("0"))).setHeight(33));
+            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudante50))).setHeight(33));
+            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudanteNormales))).setHeight(33));
             tabla.addCell(new Cell(1,1).add(new Paragraph("Total horas/oficial:")).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesOficial100()))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesOficial50()))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
+            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf("0"))).setHeight(33));
+            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudante50))).setHeight(33));
+            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudanteNormales))).setHeight(33));
             tabla.addCell(new Cell(1,1).add(new Paragraph("Total horas/ayud nocturnas:")).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
             tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
             tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
@@ -541,7 +479,7 @@ public class Panel extends javax.swing.JPanel {
         documento.add(tablacont);
         documento.close();
         } catch (FileNotFoundException | MalformedURLException ex) {
-           
+            ;
             }
 
     }//GEN-LAST:event_jBPdfActionPerformed
@@ -555,16 +493,15 @@ public class Panel extends javax.swing.JPanel {
     }//GEN-LAST:event_jCBEmpleadoActionPerformed
 
     private void jBGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBGuardarActionPerformed
-        List<Integer> horas100 = horas100();
-        List<Integer> horas50 = horas50();
         Integer dni;
         Long ot = Long.valueOf(jTOt.getText());
         LocalTime horainicio,horafinal;
         LocalDate fecha;
         String fechatabla;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        horas50YNormales();
         if(modelo.getRowCount()>-1){
-            for(int i = 0;i<modelo.getRowCount();i++){
+            for(int i = control;i<modelo.getRowCount();i++){
                 dni = Integer.valueOf(modelo.getValueAt(i, 2).toString()); 
                 fechatabla = modelo.getValueAt(i, 3).toString();
                 fecha =  LocalDate.parse(fechatabla,formatter);
@@ -578,16 +515,14 @@ public class Panel extends javax.swing.JPanel {
                 seguimiento.setFecha(fecha);
                 seguimiento.setHoraFinal(horafinal);
                 seguimiento.setHoraInicio(horainicio);
-                //seguimiento.setHorasNormales(0);
-                seguimiento.setHoras_100(horas100.get(i));
+                seguimiento.setHorasNormales(horasNormales.get(i));
+                seguimiento.setHoras_100(0);
                 seguimiento.setHoras_50(horas50.get(i));
                 seguimiento.setParteDiario(pd.buscarParteDiario(ot));
                 sd.guardarSeguimientoCompleto(seguimiento);
             }
         }
-        jBModificar.setEnabled(true);
-        modelo = new DefaultTableModel();
-        jBGuardar.setEnabled(false);
+        JOptionPane.showMessageDialog(this, horasNormales);
     }//GEN-LAST:event_jBGuardarActionPerformed
 
     private void jBModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBModificarActionPerformed
