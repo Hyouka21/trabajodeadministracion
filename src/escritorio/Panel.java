@@ -24,6 +24,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
@@ -43,13 +44,13 @@ import proyectojorge.control.ParteDiarioData;
 import proyectojorge.control.SeguimientoData;
 import proyectojorge.modelo.Empleado;
 import proyectojorge.modelo.Seguimiento;
-
+import vistas.GenerarPDF;
 /**
  *
  * @author Hernan14
  */
 public class Panel extends javax.swing.JPanel {
-        private Conexion con;
+    private Conexion con;
     private SeguimientoData sd;
     private  Seguimiento seguimiento;
     private ParteDiarioData pd;
@@ -62,9 +63,9 @@ public class Panel extends javax.swing.JPanel {
     private List<Integer> horas50BD;
     private List<Integer> horasNormalesBD;
     private List<Long> idSeguimientos;
-    private int horasTotalesAyudante50, horasTotalesAyudanteNormales,
-    horasTotalesOficial50, horasTotalesOficialNormales;
-    
+    private int horasTotalesAyudante50, horasTotalesAyudanteNormales,horasTotalesOficial50, horasTotalesOficialNormales;
+    private GenerarPDF generarPdf;
+   
     public Panel(String ot,String nt) {
         initComponents();
         modelo = new DefaultTableModel(){
@@ -77,10 +78,10 @@ public class Panel extends javax.swing.JPanel {
                 }
             }
         };
+        horasTotalesAyudante50 = 0; horasTotalesAyudanteNormales = 0;horasTotalesOficial50 = 0; horasTotalesOficialNormales = 0;
         this.nt = nt; this.ot = ot;
         horas50 = new ArrayList<Integer>(); horasNormales = new ArrayList<Integer>();
-        idSeguimientos = new ArrayList<Long>(); horasNormalesBD = new ArrayList<Integer>();
-        horas50BD = new ArrayList<Integer>();
+        idSeguimientos = new ArrayList<Long>(); 
         con=new Conexion();
         sd = new SeguimientoData(con);
         ed = new EmpleadoData(con);
@@ -92,9 +93,17 @@ public class Panel extends javax.swing.JPanel {
         jBModificar.setEnabled(false);
         cargarEmpleados();
         cargarTabla();
-        //JOptionPane.showMessageDialog(this, horasNormales);
+        horas50YNormalesBD();
+        horasTotales();
     }
 
+    public void borrarFilasTabla(){
+         int a =modelo.getRowCount()-1;
+         for(int i=a;i>=0;i--){
+            modelo.removeRow(i);
+         }
+     }
+    
     public void ArmarCabeceraTabla(){
         List<Object> columna = new ArrayList();
         columna.add("Empleado");
@@ -121,6 +130,7 @@ public class Panel extends javax.swing.JPanel {
     private void cargarTabla(){
         long ots = Long.valueOf(ot.toString());
         long nts = Long.valueOf(nt.toString());
+        idSeguimientos = new ArrayList<Long>(); 
         List<Seguimiento> seguimientos = sd.traerSeguimientosOrdTrabajoNumTar(ots,nts);
         control = seguimientos.size();
         if(seguimientos.size()<0){   
@@ -134,6 +144,7 @@ public class Panel extends javax.swing.JPanel {
     }
     
     private void horas50YNormales(){
+        horas50 = new ArrayList<Integer>(); horasNormales = new ArrayList<Integer>();
         LocalTime horasanteriores; 
         int horainicio,horafinal,horastotales,horasnuevas;
         long dni;
@@ -170,25 +181,10 @@ public class Panel extends javax.swing.JPanel {
             }
         }
     }
-    
-    private void horasTotalesAyudante50(){
-        String tipo;
-        if(modelo.getRowCount()!= -1){
-            for(int i = 0;i<modelo.getRowCount();i++){
-                tipo = modelo.getValueAt(i, 1).toString();
-                if(tipo == "ayudante"){
-                    horasTotalesAyudante50+= horas50.get(i);
-                    horasTotalesAyudanteNormales+= horasNormales.get(i);
-                }
-                else if(tipo == "oficial"){
-                    horasTotalesOficial50+= horas50.get(i);
-                    horasTotalesOficialNormales+= horasNormales.get(i);
-                }
-            }
-        }
-    }
-    
+        
     private void horas50YNormalesBD(){
+        horasNormalesBD = new ArrayList<Integer>();
+        horas50BD = new ArrayList<Integer>();
         Seguimiento seg;
         for(int i = 0;i<modelo.getRowCount();i++){
             seg = sd.traerSeguimientosId(Integer.valueOf(idSeguimientos.get(i).toString()));
@@ -197,6 +193,25 @@ public class Panel extends javax.swing.JPanel {
         }
     }
     
+    private void horasTotales(){
+        horasTotalesAyudante50 = 0; horasTotalesAyudanteNormales = 0;
+        horasTotalesOficial50 = 0; horasTotalesOficialNormales = 0;
+        String tipo;
+        if(modelo.getRowCount()!= -1){
+            for(int i = 0;i<modelo.getRowCount();i++){
+                tipo = modelo.getValueAt(i, 1).toString();
+                if("ayudante".equals(tipo)){
+                    horasTotalesAyudante50+= horas50BD.get(i);
+                    horasTotalesAyudanteNormales+= horasNormalesBD.get(i);
+                }
+                else if("oficial".equals(tipo)){
+                    horasTotalesOficial50+= horas50BD.get(i);
+                    horasTotalesOficialNormales+= horasNormalesBD.get(i);
+                }
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -216,6 +231,7 @@ public class Panel extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jTNt = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
+        jBBorrar = new javax.swing.JButton();
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -281,6 +297,13 @@ public class Panel extends javax.swing.JPanel {
 
         jLabel4.setText("NUMERO DE TAREA");
 
+        jBBorrar.setText("BORRAR SEGUIMIENTO");
+        jBBorrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBBorrarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -307,17 +330,18 @@ public class Panel extends javax.swing.JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(57, 57, 57)
                                 .addComponent(jBPdf, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 372, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(54, 54, 54)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jBModificar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jBGuardar)))
+                                    .addComponent(jBGuardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jBBorrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addComponent(jLabel2)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 528, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(80, 80, 80))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 610, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(44, 44, 44))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -328,12 +352,15 @@ public class Panel extends javax.swing.JPanel {
                     .addComponent(jLabel3)
                     .addComponent(jTNt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
-                .addGap(88, 88, 88)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel1)
-                        .addComponent(jCBEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(88, 88, 88)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jCBEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(79, 79, 79)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -341,7 +368,9 @@ public class Panel extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(54, 54, 54)
+                                .addGap(11, 11, 11)
+                                .addComponent(jBBorrar)
+                                .addGap(18, 18, 18)
                                 .addComponent(jBModificar)
                                 .addGap(18, 18, 18)
                                 .addComponent(jBGuardar))
@@ -354,133 +383,13 @@ public class Panel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBPdfActionPerformed
-        String dniu = jTOt.getText()+"-"+jTNt.getText();
-        horas50YNormalesBD();
-        horasTotalesAyudante50();
-        //JOptionPane.showMessageDialog(this,horas50 );
+        generarPdf = new GenerarPDF(jTOt.getText(),jTNt.getText(),horasTotalesAyudante50, 
+                horasTotalesAyudanteNormales,horasTotalesOficial50, horasTotalesOficialNormales, horas50BD, horasNormalesBD, modelo);
         try {
-            String ruta = System.getProperty("user.home");
-            File file = new File(ruta+"/desktop/ProyectoTrabajo/"+dniu+".pdf"); //RUTA A DEFINIR POR EL USUARIO
-            PdfWriter writer = new PdfWriter(file);
-            PdfDocument pdf = new PdfDocument(writer);
-            Document documento = new Document(pdf,PageSize.A3);
-            documento.setMargins(5,5,5,5);
-            //imagen
-            ImageData imagen = null;
-            imagen = ImageDataFactory.create("\\Users\\Hernan14\\Documents\\NetBeansProjects\\trabajodeadministracion\\src\\imagenes\\electriccompany.png"); //RUTA A DEFINIR POR EL USUARIO
-            Image imagen2 = new Image(imagen);
-            imagen2.setHeight(200f);
-            //tablas celdas
-            Table tabla = new Table(9);
-            Table tablacont = new Table(9);
-            Table tablainfech = new Table(3);
-            Table tablainfot = new Table(1);
-            Table descripcion = new Table(1);
-            Table herramientas = new Table(1);
-            Table observaciones = new Table(1);
-            Table horas = new Table(4);
-            Cell celdahoras = new Cell(1,4);
-            Cell celdainfot = new Cell(1,4);
-            Cell celdafecha = new Cell(1,3);
-            Cell celdainfech = new Cell(1,3);
-            Cell celdainfo = new Cell(1,3);
-            Cell celdaimg = new Cell(1,3);
-            Cell celdajefe = new Cell(1,1);
-            Cell celdasector = new Cell(1,1);
-            Cell celdaOT = new Cell(1,1);
-            Cell asd = new Cell(1,1);
-            asd.setMaxWidth(400f);
-            Border b1 = new SolidBorder(2);
-            Border bd = new DottedBorder(1);
-            tablacont.setBorder(b1).setPaddings(2,2,2,2);
-            //Tablas anidadas
-            Paragraph infofecha = new Paragraph("fecha");
-            Paragraph jefe = new Paragraph("Carlos");
-            Paragraph sector = new Paragraph("");
-            Paragraph ot = new Paragraph("11756176");
-            celdajefe.add(jefe).setTextAlignment(TextAlignment.CENTER);
-            celdasector.add(sector).setTextAlignment(TextAlignment.CENTER);
-            celdaOT.add(ot).setTextAlignment(TextAlignment.CENTER);
-            tablainfot.addCell(new Cell(1,4).add(new Paragraph("N° de OT")).setTextAlignment(TextAlignment.CENTER));
-            tablainfot.addCell(celdaOT);
-            tablainfot.addCell(asd.add(new Paragraph("Nombre solicitante de la tarea")).setTextAlignment(TextAlignment.CENTER));
-            tablainfot.addCell(celdajefe.setHeight(40));
-            tablainfot.addCell(new Cell(1,4).add(new Paragraph("Sector de la Tarea")).setTextAlignment(TextAlignment.CENTER));
-            tablainfot.addCell(celdasector.setHeight(40));
-            tablainfot.setMaxWidth(400f);
-            celdainfech.add(infofecha);
-            celdainfech.setVerticalAlignment(VerticalAlignment.MIDDLE);
-            tablainfech.addCell(celdainfech);
-            tablainfech.setVerticalAlignment(VerticalAlignment.MIDDLE);
-            tablainfech.setHorizontalAlignment(HorizontalAlignment.CENTER);
-            //propiedades celdas
-            Paragraph info = new Paragraph("informacion importante de contacto");
-            celdainfot.add(tablainfot);
-            celdafecha.add(tablainfech);
-            celdafecha.setVerticalAlignment(VerticalAlignment.MIDDLE);
-            celdainfo.add(info).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE);
-            celdainfo.setPaddingLeft(25);
-            celdaimg.add(imagen2.setAutoScale(true));
-            //agregar celdas a tablas
-            tabla.addCell(celdaimg);
-            tabla.addCell(celdainfo);
-            tabla.addCell(celdafecha);
-            tabla.addCell(celdainfot.setPaddings(2,3,2,3));
-            tabla.addCell(new Cell(1,5).add(descripcion.addCell(new Cell(1,1).add(new Paragraph("Detalle de la tarea")).setTextAlignment(TextAlignment.CENTER)
-                .setMaxWidth(550f)).addCell(new Cell(1,1).setHeight(150f).setMarginTop(1f))).setPaddings(2,3,2,3));
-            tabla.addCell(new Cell(1,2).add(new Paragraph("OPERARIO")));
-            tabla.addCell(new Cell(1,2).add(new Paragraph("FECHA")).setBorderTopLeftRadius(new BorderRadius(4)));
-            tabla.addCell("INICIO");
-            tabla.addCell("FIN");
-            tabla.addCell(new Cell(1,1).add(new Paragraph("HS/100")).setMaxWidth(10));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("HS/50")).setMaxWidth(10));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("HS. N")).setMaxWidth(10));
-            int cantidad = 22;
-            for(int i=0;i<modelo.getRowCount();i++){
-                tabla.addCell(new Cell(1,2).add(new Paragraph(modelo.getValueAt(i,0).toString())));
-                tabla.addCell(new Cell(1,2).add(new Paragraph(modelo.getValueAt(i,3).toString())));
-                tabla.addCell(modelo.getValueAt(i,4).toString());
-                tabla.addCell(modelo.getValueAt(i,5).toString());
-                tabla.addCell("0");
-                tabla.addCell(horas50BD.get(i).toString());
-                tabla.addCell(horasNormalesBD.get(i).toString());
-                cantidad--;
-                }
-            for(int x = 0;x<cantidad;x++){
-                tabla.addCell(new Cell(1,2).setHeight(20));
-                tabla.addCell(new Cell(1,2).setHeight(20));
-                tabla.addCell(new Cell(1,1).setHeight(20));
-                tabla.addCell(new Cell(1,1).setHeight(20));
-                tabla.addCell(new Cell(1,1).setHeight(20));
-                tabla.addCell(new Cell(1,1).setHeight(20));
-                tabla.addCell(new Cell(1,1).setHeight(20));
-            }
-            tabla.addCell(new Cell(4,5).add(herramientas.addCell(new Cell(1,1).add(new Paragraph("Herramientas de trabajo: ")).setMaxWidth(600f).setHeight(130))).setPaddings(4,4,4,4));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("Total horas/ayudante:")).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf("0"))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudante50))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudanteNormales))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("Total horas/oficial:")).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf("0"))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudante50))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph(String.valueOf(horasTotalesAyudanteNormales))).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("Total horas/ayud nocturnas:")).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("Total horas/ofic nocturnas:")).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
-            tabla.addCell(new Cell(1,1).add(new Paragraph("  ")).setHeight(33));
-            tabla.addCell(new Cell(1,9).add(observaciones.addCell(new Cell(1,9).add(new Paragraph("observaciones: ")).setMaxWidth(950f).setHeight(17).setBorderBottom(bd))
-                .addCell(new Cell(1,9).setMaxWidth(950f).setHeight(17).setBorderBottom(bd))
-                .addCell(new Cell(1,9).setMaxWidth(950f).setHeight(17).setBorderTop(bd))).setPaddings(4,4,4,4));
-        tablacont.addCell(tabla);
-        documento.add(tablacont);
-        documento.close();
-        } catch (FileNotFoundException | MalformedURLException ex) {
-            ;
-            }
+            generarPdf.GenerarPdf();
+        } catch (IOException ex) {
+            Logger.getLogger(Panel.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }//GEN-LAST:event_jBPdfActionPerformed
 
@@ -493,13 +402,14 @@ public class Panel extends javax.swing.JPanel {
     }//GEN-LAST:event_jCBEmpleadoActionPerformed
 
     private void jBGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBGuardarActionPerformed
-        Integer dni;
+        Integer dni; 
         Long ot = Long.valueOf(jTOt.getText());
         LocalTime horainicio,horafinal;
         LocalDate fecha;
         String fechatabla;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         horas50YNormales();
+        JOptionPane.showMessageDialog(this,horas50);
         if(modelo.getRowCount()>-1){
             for(int i = control;i<modelo.getRowCount();i++){
                 dni = Integer.valueOf(modelo.getValueAt(i, 2).toString()); 
@@ -509,7 +419,6 @@ public class Panel extends javax.swing.JPanel {
                 horafinal = LocalTime.of(Integer.valueOf(part1[0]),0);
                 String[] part2 = modelo.getValueAt(i, 4).toString().split(":");
                 horainicio = LocalTime.of(Integer.valueOf(part2[0]),0);
-                JOptionPane.showMessageDialog(this,horainicio);
                 seguimiento = new Seguimiento();
                 seguimiento.setEmpleado(ed.buscarEmpleado(dni));
                 seguimiento.setFecha(fecha);
@@ -521,8 +430,11 @@ public class Panel extends javax.swing.JPanel {
                 seguimiento.setParteDiario(pd.buscarParteDiario(ot));
                 sd.guardarSeguimientoCompleto(seguimiento);
             }
-        }
-        JOptionPane.showMessageDialog(this, horasNormales);
+        }        
+        borrarFilasTabla();
+        cargarTabla();
+        horas50YNormalesBD();
+        horasTotales();
     }//GEN-LAST:event_jBGuardarActionPerformed
 
     private void jBModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBModificarActionPerformed
@@ -539,9 +451,24 @@ public class Panel extends javax.swing.JPanel {
         };
     }//GEN-LAST:event_jBModificarActionPerformed
 
+    private void jBBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBBorrarActionPerformed
+        int filaSeleccionada = JTabla.getSelectedRow();
+        if(filaSeleccionada!=-1){
+            Long id = Long.valueOf(idSeguimientos.get(filaSeleccionada).toString());
+            sd.eliminarSeguimiento(Integer.valueOf(id.toString()));
+            borrarFilasTabla();
+            cargarTabla();
+            horas50YNormalesBD();
+            horasTotales();
+        }else{
+            JOptionPane.showMessageDialog(this,"Seleccione una fila de la tabla para borrar seguimiento");
+        } 
+    }//GEN-LAST:event_jBBorrarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable JTabla;
+    private javax.swing.JButton jBBorrar;
     private javax.swing.JButton jBGuardar;
     private javax.swing.JButton jBModificar;
     private javax.swing.JButton jBPdf;
